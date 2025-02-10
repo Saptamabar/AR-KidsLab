@@ -91,7 +91,7 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
         NavigationItem("Profile", ImageVector.vectorResource(R.drawable.dribbble_light_preview), "arList")
     )
 
-    var selectedIndex by remember { mutableStateOf(0) }
+    var selectedIndex by remember { mutableStateOf(1) }
 
     Scaffold(
         bottomBar = {
@@ -102,14 +102,15 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
                         selected = selectedIndex == index,
                         onClick = {
                             selectedIndex = index
-                            // Melakukan navigasi ke destinasi yang sesuai
                             navController.navigate(navigationItem.route) {
-                                // Mengelola popUp untuk mencegah tumpukan layar berlebih
-                                navController.graph.startDestinationRoute?.let { route ->
-                                    popUpTo(route) { saveState = true }
+                                navController.graph.startDestinationRoute?.let { screen_route ->
+                                    popUpTo(screen_route) {
+                                        saveState = true
+                                    }
                                 }
-                            }
-                        },
+                                launchSingleTop = true
+                                restoreState = true
+                        }},
                         icon = {
                             Icon(tint = Color.White,
                                 imageVector = navigationItem.icon,
@@ -146,10 +147,10 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
         content = { innerPadding ->
             NavHost(navController, startDestination = "dashboard") {
                 composable("dashboard") {
-                    DashBoard(modifier.padding(innerPadding))
+                    Profile(modifier.padding(innerPadding))
                 }
                 composable("arList") {
-                    ArList(modifier.padding(innerPadding))
+                    Avatar(modifier.padding(innerPadding))
                 }
             }
         }
@@ -169,19 +170,19 @@ fun DefaultPreview() {
 }
 
 @Composable
-fun DashBoard(modifier: Modifier) {
+fun Profile(modifier: Modifier) {
     Box(modifier = modifier
         .fillMaxSize()
         .background(Color.Blue)) {
-        Text(text = "Dashboard")
+        Text(text = "Profile")
     }
 }
 
 @Composable
-fun ArList(modifier: Modifier) {
+fun Avatar(modifier: Modifier) {
     Box(modifier = modifier
         .fillMaxSize()
         .background(Color.Green)) {
-        Text(text = "APlaah")
+        Text(text = "Avatar")
     }
 }
