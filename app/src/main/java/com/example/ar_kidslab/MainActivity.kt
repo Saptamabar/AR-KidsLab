@@ -161,11 +161,11 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
             if (bottomPadding > 0.dp) bottomPadding -= 15.dp
             NavHost(navController, startDestination = dashboard) {
                 composable<dashboard> {
-                    Profile(modifier.padding(top = topPadding,
+                    Profile(modifier.padding(
                         bottom = bottomPadding))
                 }
                 composable<arList> {
-                    Avatar(modifier.padding(top = topPadding,
+                    Avatar(modifier.padding(
                         bottom = bottomPadding))
                 }
             }
