@@ -63,9 +63,13 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
 class MainActivity : ComponentActivity() {
@@ -87,8 +91,8 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
     val navItemList = listOf(
-        NavigationItem("Avatar", ImageVector.vectorResource(R.drawable.vector), "dashboard"),
-        NavigationItem("Profile", ImageVector.vectorResource(R.drawable.dribbble_light_preview), "arList")
+        NavigationItem("Avatar", ImageVector.vectorResource(R.drawable.vector), arList),
+        NavigationItem("Profile", ImageVector.vectorResource(R.drawable.dribbble_light_preview), dashboard)
     )
 
     var selectedIndex by remember { mutableStateOf(1) }
@@ -96,21 +100,30 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
     Scaffold(
         bottomBar = {
             NavigationBar(containerColor = MaterialTheme.colorScheme.primary,modifier = Modifier.clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))) {
+                val navBackStackEntry = navController.currentBackStackEntryAsState().value
+                val currentDestination = navBackStackEntry?.destination
                 navItemList.forEachIndexed {index, navigationItem ->
                     NavigationBarItem(
                         colors = NavigationBarItemDefaults.colors(selectedIconColor = MaterialTheme.colorScheme.secondary, indicatorColor = MaterialTheme.colorScheme.secondary),
-                        selected = selectedIndex == index,
+                        selected =  currentDestination?.hierarchy?.any {
+                            it.hasRoute(navigationItem.route::class)
+                        } == true,
                         onClick = {
                             selectedIndex = index
                             navController.navigate(navigationItem.route) {
-                                navController.graph.startDestinationRoute?.let { screen_route ->
-                                    popUpTo(screen_route) {
-                                        saveState = true
-                                    }
+                                // Pop up to the start destination of the graph to
+                                // avoid building up a large stack of destinations
+                                // on the back stack as users select items
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
                                 }
+                                // Avoid multiple copies of the same destination when
+                                // reselecting the same item
                                 launchSingleTop = true
+                                // Restore state when reselecting a previously selected item
                                 restoreState = true
-                        }},
+                            }
+                        },
                         icon = {
                             Icon(tint = Color.White,
                                 imageVector = navigationItem.icon,
@@ -121,8 +134,6 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
                         label = {
                             Text(color = Color.White,text = navigationItem.label)
                                 },
-
-
                     )
                 }
             }
@@ -145,12 +156,17 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
         },
         floatingActionButtonPosition = FabPosition.Center,
         content = { innerPadding ->
-            NavHost(navController, startDestination = "dashboard") {
-                composable("dashboard") {
-                    Profile(modifier.padding(innerPadding))
+            val topPadding = innerPadding.calculateTopPadding()
+            var bottomPadding = innerPadding.calculateBottomPadding()
+            if (bottomPadding > 0.dp) bottomPadding -= 15.dp
+            NavHost(navController, startDestination = dashboard) {
+                composable<dashboard> {
+                    Profile(modifier.padding(top = topPadding,
+                        bottom = bottomPadding))
                 }
-                composable("arList") {
-                    Avatar(modifier.padding(innerPadding))
+                composable<arList> {
+                    Avatar(modifier.padding(top = topPadding,
+                        bottom = bottomPadding))
                 }
             }
         }

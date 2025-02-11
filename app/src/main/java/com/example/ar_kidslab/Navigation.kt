@@ -8,14 +8,14 @@ import androidx.navigation.Navigator
 import kotlinx.serialization.Serializable
 
 @Serializable
-object Dashboard
+object dashboard
 @Serializable
-object ArList
+object arList
 
 // Model untuk item navigasi
 data class NavigationItem(
     val label: String,
     val icon: ImageVector,
-    val route: String
+    val route: Any
 )
 
