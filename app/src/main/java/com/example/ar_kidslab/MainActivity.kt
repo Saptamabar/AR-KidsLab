@@ -106,9 +106,7 @@ class MainActivity : ComponentActivity() {
     private fun setCameraPreview() {
         setContent {
             ARKidsLabTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    NavBarWithFAB(modifier = Modifier.padding(innerPadding))
-                }
+                NavBarWithFAB()
             }
         }
     }
@@ -238,11 +236,11 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
             if (bottomPadding > 0.dp) bottomPadding -= 15.dp
             NavHost(navController, startDestination = dashboard) {
                 composable<dashboard> {
-                    Profile(modifier.padding(
+                    Profile(modifier.padding(top = topPadding,
                         bottom = bottomPadding))
                 }
                 composable<arList> {
-                    ARList(modifier.padding(
+                    ARList(modifier.padding(top = topPadding,
                         bottom = bottomPadding))
                 }
                 composable<cameraview> {
