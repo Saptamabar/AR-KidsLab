@@ -11,6 +11,9 @@ import kotlinx.serialization.Serializable
 object dashboard
 @Serializable
 object arList
+@Serializable
+object cameraview
+
 
 // Model untuk item navigasi
 data class NavigationItem(
