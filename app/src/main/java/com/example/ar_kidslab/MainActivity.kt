@@ -41,6 +41,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,7 +70,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.ar_kidslab.View.ARList
 import com.example.ar_kidslab.View.Cameraview
 import com.example.ar_kidslab.View.Profile
+import com.example.ar_kidslab.View.dDisplay
 import com.example.ar_kidslab.ui.theme.ARKidsLabTheme
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     private val cameraPermissionRequest =
@@ -89,6 +92,7 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) -> {
                 setCameraPreview()
             }
+
             else -> {
                 cameraPermissionRequest.launch(Manifest.permission.CAMERA)
             }
@@ -110,6 +114,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     private fun showPermissionDeniedUI() {
         setContent {
             ARKidsLabTheme {
@@ -145,8 +150,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-
 }
 
 @Composable
@@ -155,80 +158,98 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
 
     val navItemList = listOf(
         NavigationItem("AR List", ImageVector.vectorResource(R.drawable.vector), arList),
-        NavigationItem("Profile", ImageVector.vectorResource(R.drawable.dribbble_light_preview), dashboard)
+        NavigationItem(
+            "Profile",
+            ImageVector.vectorResource(R.drawable.dribbble_light_preview),
+            dashboard
+        )
     )
-    var isFloatingButtonVisible by remember { mutableStateOf(true) }
-    var isBottomBarVisible by remember { mutableStateOf(true) }
+    var isFabandBottombarVisible by remember { mutableStateOf(true) }
 
     Scaffold(
         bottomBar = {
             AnimatedVisibility(
-                visible = isBottomBarVisible,
+                visible = isFabandBottombarVisible,
                 enter = slideInVertically(initialOffsetY = { it }),
                 exit = slideOutVertically(targetOffsetY = { it })
-            ){
-            if (isBottomBarVisible){
-            NavigationBar(containerColor = MaterialTheme.colorScheme.primary,modifier = Modifier.clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-                )) {
-                val navBackStackEntry = navController.currentBackStackEntryAsState().value
-                val currentDestination = navBackStackEntry?.destination
-                navItemList.forEach {navigationItem ->
-                    NavigationBarItem(
-                        colors = NavigationBarItemDefaults.colors(selectedIconColor = MaterialTheme.colorScheme.secondary, indicatorColor = MaterialTheme.colorScheme.secondary),
-                        selected =  currentDestination?.hierarchy?.any {
-                            it.hasRoute(navigationItem.route::class)
-                        } == true,
-                        onClick = {
-                            navController.navigate(navigationItem.route) {
-                                // Pop up to the start destination of the graph to
-                                // avoid building up a large stack of destinations
-                                // on the back stack as users select items
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                // Avoid multiple copies of the same destination when
-                                // reselecting the same item
-                                launchSingleTop = true
-                                // Restore state when reselecting a previously selected item
-                                restoreState = true
-                            }
-                        },
-                        icon = {
-                            Icon(tint = Color.White,
-                                imageVector = navigationItem.icon,
-                                contentDescription = navigationItem.label,
-                                modifier = Modifier.size(width = 24.dp, height = 24.dp)
+            ) {
+                if (isFabandBottombarVisible) {
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clip(
+                            RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                        )
+                    ) {
+                        val navBackStackEntry = navController.currentBackStackEntryAsState().value
+                        val currentDestination = navBackStackEntry?.destination
+                        navItemList.forEach { navigationItem ->
+                            NavigationBarItem(
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.secondary,
+                                    indicatorColor = MaterialTheme.colorScheme.secondary
+                                ),
+                                selected = currentDestination?.hierarchy?.any {
+                                    it.hasRoute(navigationItem.route::class)
+                                } == true,
+                                onClick = {
+                                    navController.navigate(navigationItem.route) {
+                                        // Pop up to the start destination of the graph to
+                                        // avoid building up a large stack of destinations
+                                        // on the back stack as users select items
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        // Avoid multiple copies of the same destination when
+                                        // reselecting the same item
+                                        launchSingleTop = true
+                                        // Restore state when reselecting a previously selected item
+                                        restoreState = true
+                                    }
+                                },
+                                icon = {
+                                    Icon(
+                                        tint = Color.White,
+                                        imageVector = navigationItem.icon,
+                                        contentDescription = navigationItem.label,
+                                        modifier = Modifier.size(width = 24.dp, height = 24.dp)
+                                    )
+                                },
+                                label = {
+                                    Text(color = Color.White, text = navigationItem.label)
+                                },
                             )
-                        },
-                        label = {
-                            Text(color = Color.White,text = navigationItem.label)
-                        },
-                    )
+                        }
+                    }
                 }
             }
-        } }},
+        },
         floatingActionButton = {
-            AnimatedVisibility(visible = isFloatingButtonVisible,
+            AnimatedVisibility(
+                visible = isFabandBottombarVisible,
                 enter = slideInVertically(initialOffsetY = { it }),
-                exit = slideOutVertically()) {  if(isFloatingButtonVisible){
-            FloatingActionButton(
-                onClick = { navController.navigate(cameraview)
-                            isBottomBarVisible = false
-                            isFloatingButtonVisible = false
-                          },
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                modifier = Modifier
-                    .offset(y = 50.dp)
-                    .size(80.dp)
+                exit = slideOutVertically(targetOffsetY = { it })
             ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.camera_svgrepo_com),
-                    contentDescription = "Camera",
-                    tint = Color.White,
-                    modifier = Modifier.size(60.dp)
-                )
+                if (isFabandBottombarVisible) {
+                    FloatingActionButton(
+                        onClick = {
+                            isFabandBottombarVisible = false
+                            navController.navigate(cameraview)
+                        },
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .offset(y = 50.dp)
+                            .size(80.dp)
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.camera_svgrepo_com),
+                            contentDescription = "Camera",
+                            tint = Color.White,
+                            modifier = Modifier.size(60.dp)
+                        )
+                    }
+                }
             }
-        }}},
+        },
         floatingActionButtonPosition = FabPosition.Center,
         content = { innerPadding ->
             val topPadding = innerPadding.calculateTopPadding()
@@ -239,23 +260,35 @@ fun NavBarWithFAB(modifier: Modifier = Modifier) {
                     Profile(modifier.padding())
                 }
                 composable<arList> {
-                    ARList(modifier.padding(top = topPadding,
-                        bottom = bottomPadding))
+                    ARList(
+                        modifier.padding(bottom = 200.dp),
+                        bottombarVisible = { isFabandBottombarVisible = it },
+                        fabVisible = { isFabandBottombarVisible = it },
+                        navController = navController)
+                    BackHandler(enabled = true) {
+                        isFabandBottombarVisible = true
+                        isFabandBottombarVisible = true
+                        // Kembali ke halaman sebelumnya
+                        navController.popBackStack()
+                        // Tampilkan kembali BottomBar dan FAB
+
+                    }
+
                 }
                 composable<cameraview> {
+                    // Tambahkan BackHandler untuk halaman cameraview
+                    BackHandler(enabled = true) {
+                        isFabandBottombarVisible = true
+                        isFabandBottombarVisible = true
+                        // Kembali ke halaman sebelumnya
+                        navController.popBackStack()
+                        // Tampilkan kembali BottomBar dan FAB
 
-                        // Tambahkan BackHandler untuk halaman cameraview
-                        BackHandler(enabled = true) {
-                            // Kembali ke halaman sebelumnya
-                            navController.popBackStack()
-                            // Tampilkan kembali BottomBar dan FAB
-                            isBottomBarVisible = true
-                            isFloatingButtonVisible = true
-                        }
-
-
+                    }
                     Cameraview()
-
+                }
+                composable<ArView> {
+                    dDisplay()
                 }
             }
         }

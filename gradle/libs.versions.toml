@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.3"
+arsceneview = "2.2.1"
 cameraCamera2 = "1.2.0-beta01"
 coreSplashscreen = "1.0.1"
 kotlin = "2.0.0"
@@ -26,6 +27,7 @@ androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragme
 androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationCompose" }
 androidx-navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigationCompose" }
 androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
+arsceneview = { module = "io.github.sceneview:arsceneview", version.ref = "arsceneview" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -42,6 +44,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
+sceneview = { module = "io.github.sceneview:sceneview", version.ref = "arsceneview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

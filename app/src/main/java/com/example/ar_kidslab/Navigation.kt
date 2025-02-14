@@ -13,6 +13,8 @@ object dashboard
 object arList
 @Serializable
 object cameraview
+@Serializable
+object ArView
 
 
 // Model untuk item navigasi
