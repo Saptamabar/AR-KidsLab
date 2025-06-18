@@ -1,4 +1,4 @@
-package com.example.ar_kidslab
+package com.example.ar_kidslab.Navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -7,18 +7,8 @@ import androidx.navigation.Navigation
 import androidx.navigation.Navigator
 import kotlinx.serialization.Serializable
 
-@Serializable
-object dashboard
-@Serializable
-object arList
-@Serializable
-object cameraview
-
-
-// Model untuk item navigasi
-data class NavigationItem(
-    val label: String,
-    val icon: ImageVector,
-    val route: Any
-)
-
+object Routes {
+    const val Dashboard = "dashboard"
+    const val ARList = "ar_list"
+    const val CameraView = "camera_view"
+}

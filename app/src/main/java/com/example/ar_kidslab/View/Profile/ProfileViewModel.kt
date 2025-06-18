@@ -1,6 +1,4 @@
-package com.example.ar_kidslab.View
-
-import android.health.connect.datatypes.OxygenSaturationRecord
+package com.example.ar_kidslab.View.Profile
 
 data class Cardindikator(
     val Judul : String,
