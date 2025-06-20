@@ -13,7 +13,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -36,9 +40,14 @@ fun MainScaffold() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val isOnCameraScreen = currentRoute == Routes.CameraView
-    var isBottomBarVisible = !isOnCameraScreen
-    var isFloatingButtonVisible = !isOnCameraScreen
+    var isFloatingButtonVisible by remember { mutableStateOf(true) }
+    var isBottomBarVisible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(currentRoute) {
+        val isOnCameraScreen = currentRoute == Routes.CameraView
+        isFloatingButtonVisible = !isOnCameraScreen
+        isBottomBarVisible = !isOnCameraScreen
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -56,13 +65,11 @@ fun MainScaffold() {
             AnimatedVisibility(
                 visible = isFloatingButtonVisible,
                 enter = slideInVertically(initialOffsetY = { it }),
-                exit = slideOutVertically()
+                exit = slideOutVertically(targetOffsetY = { it })
             ) {
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(Routes.CameraView)
-                        isBottomBarVisible = false
-                        isFloatingButtonVisible = false
                     },
                     containerColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.offset(y = 50.dp).size(80.dp)
@@ -86,7 +93,7 @@ fun MainScaffold() {
                     ProfileScreen(Modifier.padding(top = topPadding, bottom = bottomPadding))
                 }
                 composable(Routes.ARList) {
-                    ARListScreen(Modifier.padding(top = topPadding, bottom = bottomPadding))
+                    ARListScreen(Modifier.padding(top = topPadding, bottom = bottomPadding),setBottomBarVisible = {isBottomBarVisible = it}, setFloatingButtonVisible = {isFloatingButtonVisible = it})
                 }
                 composable(Routes.CameraView) {
                     CameraViewScreen(onBack = {
